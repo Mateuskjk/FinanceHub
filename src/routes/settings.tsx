@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Moon, Sun, User, Wallet, Tag, ChevronRight, LogOut } from "lucide-react";
+import {
+  Moon, Sun, User, Wallet, Tag, ChevronRight, LogOut, Fingerprint,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "@/lib/api";
+import {
+  isBiometricAvailable,
+  isBiometricEnabled,
+  registerBiometric,
+  disableBiometric,
+} from "@/lib/biometric";
 import { CategoryManager } from "@/components/CategoryManager";
 import { EditProfileSheet } from "@/components/EditProfileSheet";
 import { MonthlyLimitSheet } from "@/components/MonthlyLimitSheet";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -23,8 +32,18 @@ function SettingsPage() {
   const [showCategories, setShowCategories] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showMonthlyLimit, setShowMonthlyLimit] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricOn, setBiometricOn] = useState(false);
+  const [biometricLoading, setBiometricLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    isBiometricAvailable().then((ok) => {
+      setBiometricAvailable(ok);
+      if (ok) setBiometricOn(isBiometricEnabled());
+    });
+  }, []);
 
   const toggleDark = () => {
     setDarkMode(!darkMode);
@@ -34,6 +53,28 @@ function SettingsPage() {
   const handleSignOut = async () => {
     await signOut();
     navigate({ to: "/login" });
+  };
+
+  const handleBiometricToggle = async () => {
+    if (biometricOn) {
+      disableBiometric();
+      setBiometricOn(false);
+      toast.success("Face ID desativado.");
+      return;
+    }
+    setBiometricLoading(true);
+    try {
+      const displayName = user?.user_metadata?.full_name ?? user?.email ?? "Usuário";
+      const ok = await registerBiometric(user!.id, user!.email!, displayName);
+      if (ok) {
+        setBiometricOn(true);
+        toast.success("Face ID ativado! O app será bloqueado após 30 s em segundo plano.");
+      } else {
+        toast.error("Não foi possível ativar o Face ID.");
+      }
+    } finally {
+      setBiometricLoading(false);
+    }
   };
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuário";
@@ -94,6 +135,34 @@ function SettingsPage() {
             />
           </button>
         </div>
+
+        {/* Face ID toggle — only shown when device supports it */}
+        {biometricAvailable && (
+          <div className="rounded-xl bg-card border border-border p-4 mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Fingerprint className={`h-5 w-5 ${biometricOn ? "text-primary" : "text-muted-foreground"}`} />
+              <div>
+                <p className="text-sm font-medium">Face ID / Touch ID</p>
+                <p className="text-xs text-muted-foreground">
+                  {biometricOn ? "Bloqueia ao sair do app" : "Desativado"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleBiometricToggle}
+              disabled={biometricLoading}
+              className={`relative h-7 w-12 rounded-full transition-colors ${
+                biometricOn ? "bg-primary" : "bg-muted"
+              } disabled:opacity-60`}
+            >
+              <motion.div
+                animate={{ x: biometricOn ? 22 : 2 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className="absolute top-1 h-5 w-5 rounded-full bg-white shadow"
+              />
+            </button>
+          </div>
+        )}
 
         {/* Menu Items */}
         <div className="rounded-xl bg-card border border-border divide-y divide-border mb-6">

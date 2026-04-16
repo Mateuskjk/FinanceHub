@@ -9,4 +9,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,      // keep session across page reloads
+    autoRefreshToken: true,    // silently refresh access token before expiry
+    detectSessionInUrl: true,  // pick up tokens from redirect URLs (password reset)
+  },
+});

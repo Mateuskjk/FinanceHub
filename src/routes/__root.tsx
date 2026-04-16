@@ -1,9 +1,17 @@
+import { useEffect, useState } from "react";
 import { Outlet, Link, createRootRoute, HeadContent, Scripts, useNavigate, useLocation } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { Loader2 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { LockScreen } from "@/components/LockScreen";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  isBiometricEnabled,
+  recordHideTimestamp,
+  shouldLockOnResume,
+  clearHideTimestamp,
+} from "@/lib/biometric";
 
 import appCss from "../styles.css?url";
 
@@ -75,6 +83,26 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function AppLayout() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [locked, setLocked] = useState(false);
+
+  // ── Biometric app-lock logic (client-only) ─────────────────────────────────
+  useEffect(() => {
+    if (!isBiometricEnabled()) return;
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "hidden") {
+        recordHideTimestamp();
+      } else if (document.visibilityState === "visible") {
+        if (shouldLockOnResume()) {
+          clearHideTimestamp();
+          setLocked(true);
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
 
   if (loading) {
     return (
@@ -85,7 +113,6 @@ function AppLayout() {
   }
 
   if (!user) {
-    // Render the login route inline via a redirect
     navigate({ to: "/login" });
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-background">
@@ -95,10 +122,8 @@ function AppLayout() {
   }
 
   return (
-    // min-h-[100dvh]: dynamic viewport height (iOS Safari correct)
-    // pt-safe: content below notch / Dynamic Island
-    // pb: BottomNav height + home-indicator safe area
     <div className="mx-auto max-w-lg min-h-[100dvh] pt-safe pb-[calc(5rem+env(safe-area-inset-bottom,0px))]">
+      {locked && <LockScreen onUnlock={() => setLocked(false)} />}
       <Outlet />
       <BottomNav />
     </div>
@@ -106,13 +131,12 @@ function AppLayout() {
 }
 
 function RootComponent() {
-  // useLocation is SSR-safe (no window.location)
   const { pathname } = useLocation();
-  const isLoginPage = pathname === "/login";
+  const isPublicPage = pathname === "/login" || pathname === "/reset-password";
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isLoginPage ? <Outlet /> : <AppLayout />}
+      {isPublicPage ? <Outlet /> : <AppLayout />}
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );

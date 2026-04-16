@@ -41,6 +41,17 @@ export async function signOut() {
   if (error) throw error;
 }
 
+export async function sendPasswordReset(email: string): Promise<void> {
+  const redirectTo =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/reset-password`
+      : undefined;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+  if (error) throw error;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
