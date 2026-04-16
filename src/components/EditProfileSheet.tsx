@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, User } from "lucide-react";
+import { X, Loader2, User, Wallet } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { fetchProfile } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
+import { queryKeys } from "@/hooks/use-transactions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,14 +18,37 @@ interface EditProfileSheetProps {
 
 export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [fullName, setFullName] = useState("");
+  const [initialBalanceStr, setInitialBalanceStr] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (open) {
-      setFullName(user?.user_metadata?.full_name ?? "");
-    }
+    if (!open || !user) return;
+    setFullName(user.user_metadata?.full_name ?? "");
+    // Load current initial_balance from DB
+    fetchProfile().then((p) => {
+      const val = p?.initial_balance ?? 0;
+      setInitialBalanceStr(
+        val > 0
+          ? val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          : ""
+      );
+    });
   }, [open, user]);
+
+  const handleBalanceChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    const num = parseInt(cleaned || "0", 10) / 100;
+    setInitialBalanceStr(
+      num > 0
+        ? num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : ""
+    );
+  };
+
+  const parseBalance = () =>
+    parseFloat(initialBalanceStr.replace(/\./g, "").replace(",", ".")) || 0;
 
   const handleSave = async () => {
     if (!fullName.trim()) return;
@@ -37,9 +63,12 @@ export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
       // Update profiles table
       const { error: dbError } = await supabase
         .from("profiles")
-        .update({ full_name: fullName.trim() })
+        .update({ full_name: fullName.trim(), initial_balance: parseBalance() })
         .eq("id", user!.id);
       if (dbError) throw dbError;
+
+      // Invalidate profile + transactions so dashboard recalculates balance
+      qc.invalidateQueries({ queryKey: queryKeys.profile });
 
       toast.success("Perfil atualizado!");
       onClose();
@@ -76,7 +105,7 @@ export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
               </button>
             </div>
 
-            {/* Avatar preview */}
+            {/* Avatar */}
             <div className="flex justify-center mb-6">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-primary-foreground font-display font-bold text-3xl">
                 {initials}
@@ -84,6 +113,7 @@ export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
             </div>
 
             <div className="space-y-4">
+              {/* Name */}
               <div>
                 <Label className="text-xs text-muted-foreground">Nome completo</Label>
                 <div className="relative mt-1">
@@ -97,6 +127,7 @@ export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
                 </div>
               </div>
 
+              {/* Email (read-only) */}
               <div>
                 <Label className="text-xs text-muted-foreground">Email</Label>
                 <Input
@@ -106,6 +137,24 @@ export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
                 />
                 <p className="mt-1 text-[10px] text-muted-foreground">
                   O email não pode ser alterado.
+                </p>
+              </div>
+
+              {/* Initial balance */}
+              <div>
+                <Label className="text-xs text-muted-foreground">Saldo inicial (R$)</Label>
+                <div className="relative mt-1">
+                  <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={initialBalanceStr}
+                    onChange={(e) => handleBalanceChange(e.target.value)}
+                    placeholder="0,00"
+                    inputMode="numeric"
+                    className="pl-10 border-0 bg-muted text-base font-semibold"
+                  />
+                </div>
+                <p className="mt-1.5 text-[10px] text-muted-foreground">
+                  Informe o saldo atual da sua conta. O app somará entradas e subtrairá saídas a partir desse valor.
                 </p>
               </div>
             </div>

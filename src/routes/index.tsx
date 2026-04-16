@@ -17,7 +17,7 @@ import {
 import { BalanceCard } from "@/components/BalanceCard";
 import { TransactionItem } from "@/components/TransactionItem";
 import { AddTransactionSheet } from "@/components/AddTransactionSheet";
-import { useTransactions, useMonthlyData } from "@/hooks/use-transactions";
+import { useTransactions, useMonthlyData, useProfile } from "@/hooks/use-transactions";
 import { getTotals, getCategoryTotals, formatCurrency } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
@@ -35,8 +35,10 @@ function Dashboard() {
   const navigate = useNavigate();
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: monthlyData = [] } = useMonthlyData(6);
+  const { data: profile } = useProfile();
 
-  const totals = getTotals(transactions);
+  const initialBalance = profile?.initial_balance ?? 0;
+  const totals = getTotals(transactions, initialBalance);
   const categoryTotals = getCategoryTotals(transactions);
   const recentTransactions = transactions.slice(0, 5);
 

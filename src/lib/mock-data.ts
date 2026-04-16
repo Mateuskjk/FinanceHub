@@ -123,8 +123,8 @@ export function getCategoryTotals(transactions: Transaction[]): CategoryTotal[] 
     .sort((a, b) => b.value - a.value);
 }
 
-export function getTotals(transactions: Transaction[]) {
-  const income = transactions.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
+export function getTotals(transactions: Transaction[], initialBalance = 0) {
+  const income  = transactions.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
   const expense = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
-  return { income, expense, balance: income - expense };
+  return { income, expense, balance: initialBalance + income - expense };
 }

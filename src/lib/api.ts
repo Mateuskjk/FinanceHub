@@ -262,6 +262,7 @@ export interface Profile {
   avatar_url: string | null;
   currency: string;
   monthly_limit: number | null;
+  initial_balance: number | null;
   theme: "light" | "dark" | "system";
 }
 

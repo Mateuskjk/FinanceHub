@@ -4,6 +4,7 @@ import {
   fetchTransactions,
   fetchMonthlyData,
   fetchCategories,
+  fetchProfile,
   createTransaction,
   deleteTransaction,
   createCategory,
@@ -19,6 +20,7 @@ export const queryKeys = {
   transactions: ["transactions"] as const,
   monthlyData: (months: number) => ["monthly-data", months] as const,
   categories: (type?: "income" | "expense") => ["categories", type] as const,
+  profile: ["profile"] as const,
 };
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -36,6 +38,14 @@ export function useMonthlyData(months = 6) {
     queryKey: queryKeys.monthlyData(months),
     queryFn: () => fetchMonthlyData(months),
     staleTime: 60_000,
+  });
+}
+
+export function useProfile() {
+  return useQuery({
+    queryKey: queryKeys.profile,
+    queryFn: fetchProfile,
+    staleTime: 5 * 60_000,
   });
 }
 
