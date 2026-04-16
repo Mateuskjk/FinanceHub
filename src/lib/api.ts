@@ -10,6 +10,8 @@ export interface Category {
   icon: string | null;
   color: string | null;
   sort_order: number;
+  is_default: boolean;
+  user_id: string | null; // null = global/system category
 }
 
 export interface MonthlyData {
@@ -196,11 +198,12 @@ export async function deleteCategory(id: string): Promise<void> {
 export async function fetchCategories(
   type?: "income" | "expense"
 ): Promise<Category[]> {
-  const user = await requireUser();
+  await requireUser(); // ensures profile exists; RLS handles row visibility
+  // RLS SELECT policy returns: user's own rows + global rows (user_id IS NULL)
   let query = supabase
     .from("categories")
-    .select("id, name, type, icon, color, sort_order")
-    .eq("user_id", user.id)
+    .select("id, name, type, icon, color, sort_order, is_default, user_id")
+    .order("is_default", { ascending: false }) // defaults first
     .order("sort_order");
 
   if (type) query = query.eq("type", type);

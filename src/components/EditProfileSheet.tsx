@@ -64,7 +64,7 @@ export function EditProfileSheet({ open, onClose }: EditProfileSheetProps) {
           <motion.div
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl bg-card p-6 shadow-2xl"
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto scroll-touch rounded-t-3xl bg-card p-6 shadow-2xl"
             style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}
           >
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted" />

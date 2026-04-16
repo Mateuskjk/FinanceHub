@@ -56,8 +56,13 @@ function LoginPage() {
         setError("Este email já está cadastrado. Faça login.");
       else if (msg.includes("Password should be at least"))
         setError("A senha precisa ter ao menos 6 caracteres.");
-      else if (msg.includes("For security purposes"))
-        setError("Aguarde alguns segundos antes de tentar novamente.");
+      else if (
+        msg.includes("For security purposes") ||
+        msg.includes("rate limit") ||
+        msg.includes("rate_limit") ||
+        msg.includes("Email rate limit")
+      )
+        setError("Muitas tentativas. Aguarde 1 minuto e tente novamente.");
       else setError(msg);
     } finally {
       setLoading(false);

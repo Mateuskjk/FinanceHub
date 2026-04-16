@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   Loader2,
   Check,
+  Lock,
 } from "lucide-react";
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/hooks/use-transactions";
 import type { Category } from "@/lib/api";
@@ -87,6 +88,8 @@ export function CategoryManager({ open, onClose }: CategoryManagerProps) {
   const { mutate: deleteCat, isPending: deleting } = useDeleteCategory();
 
   const filtered = categories.filter((c) => c.type === tab);
+  const defaultCats = filtered.filter((c) => c.is_default || c.user_id === null);
+  const customCats  = filtered.filter((c) => !c.is_default && c.user_id !== null);
 
   const openCreate = () => {
     setForm({ ...DEFAULT_FORM, type: tab });
@@ -148,7 +151,7 @@ export function CategoryManager({ open, onClose }: CategoryManagerProps) {
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-3xl bg-card shadow-2xl"
-            style={{ maxHeight: "calc(92dvh - 4rem - env(safe-area-inset-bottom, 0px))" }}
+            style={{ maxHeight: "90dvh" }}
           >
             {/* Handle */}
             <div className="mx-auto mt-3 mb-1 h-1 w-10 rounded-full bg-muted shrink-0" />
@@ -203,55 +206,83 @@ export function CategoryManager({ open, onClose }: CategoryManagerProps) {
                         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                       </div>
                     ) : (
-                      <div className="rounded-xl bg-background border border-border divide-y divide-border mb-4">
-                        {filtered.length === 0 && (
-                          <div className="py-8 text-center text-sm text-muted-foreground">
-                            Nenhuma categoria ainda
+                      <>
+                        {/* ── Default (global) categories ── */}
+                        {defaultCats.length > 0 && (
+                          <div className="mb-4">
+                            <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              <Lock className="h-3 w-3" /> Padrão
+                            </p>
+                            <div className="rounded-xl bg-background border border-border divide-y divide-border">
+                              {defaultCats.map((cat) => (
+                                <div key={cat.id} className="flex items-center gap-3 px-4 py-3 opacity-80">
+                                  <div
+                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg"
+                                    style={{ backgroundColor: (cat.color ?? "#6640cc") + "22" }}
+                                  >
+                                    {ICON_MAP[cat.icon ?? ""] ?? "📌"}
+                                  </div>
+                                  <div
+                                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                    style={{ backgroundColor: cat.color ?? "#6640cc" }}
+                                  />
+                                  <span className="flex-1 text-sm font-medium">{cat.name}</span>
+                                  <Lock className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
-                        {filtered.map((cat) => (
-                          <div key={cat.id} className="flex items-center gap-3 px-4 py-3">
-                            {/* Icon + color dot */}
-                            <div
-                              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg"
-                              style={{ backgroundColor: (cat.color ?? "#6640cc") + "22" }}
-                            >
-                              {ICON_MAP[cat.icon ?? ""] ?? "📌"}
+
+                        {/* ── User's custom categories ── */}
+                        <div className="mb-4">
+                          {customCats.length > 0 && (
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              Minhas categorias
+                            </p>
+                          )}
+                          {customCats.length > 0 && (
+                            <div className="rounded-xl bg-background border border-border divide-y divide-border">
+                              {customCats.map((cat) => (
+                                <div key={cat.id} className="flex items-center gap-3 px-4 py-3">
+                                  <div
+                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg"
+                                    style={{ backgroundColor: (cat.color ?? "#6640cc") + "22" }}
+                                  >
+                                    {ICON_MAP[cat.icon ?? ""] ?? "📌"}
+                                  </div>
+                                  <div
+                                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                    style={{ backgroundColor: cat.color ?? "#6640cc" }}
+                                  />
+                                  <span className="flex-1 text-sm font-medium">{cat.name}</span>
+                                  <button
+                                    onClick={() => openEdit(cat)}
+                                    className="rounded-lg p-1.5 hover:bg-muted text-muted-foreground transition-colors"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(cat.id)}
+                                    disabled={deleting}
+                                    className={`rounded-lg p-1.5 transition-colors text-sm font-medium ${
+                                      deleteConfirmId === cat.id
+                                        ? "bg-destructive text-white px-3"
+                                        : "hover:bg-muted text-muted-foreground"
+                                    }`}
+                                  >
+                                    {deleteConfirmId === cat.id ? (
+                                      deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar"
+                                    ) : (
+                                      <Trash2 className="h-4 w-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              ))}
                             </div>
-
-                            <div
-                              className="h-2.5 w-2.5 shrink-0 rounded-full"
-                              style={{ backgroundColor: cat.color ?? "#6640cc" }}
-                            />
-
-                            <span className="flex-1 text-sm font-medium">{cat.name}</span>
-
-                            {/* Actions */}
-                            <button
-                              onClick={() => openEdit(cat)}
-                              className="rounded-lg p-1.5 hover:bg-muted text-muted-foreground transition-colors"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-
-                            <button
-                              onClick={() => handleDelete(cat.id)}
-                              disabled={deleting}
-                              className={`rounded-lg p-1.5 transition-colors text-sm font-medium ${
-                                deleteConfirmId === cat.id
-                                  ? "bg-destructive text-white px-3"
-                                  : "hover:bg-muted text-muted-foreground"
-                              }`}
-                            >
-                              {deleteConfirmId === cat.id ? (
-                                deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar"
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                          )}
+                        </div>
+                      </>
                     )}
 
                     <Button onClick={openCreate} className="w-full gap-2 rounded-xl">
