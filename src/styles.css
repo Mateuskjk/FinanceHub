@@ -1,0 +1,328 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/dmsans/v15/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmH3iWM.woff2') format('woff2');
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-income-muted: var(--income-muted);
+  --color-expense-muted: var(--expense-muted);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-display: 'DM Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* ============================================================
+   THEME TOKENS — hex fallbacks first (Safari < 15.4 / iOS < 15.4),
+   then overridden by the @supports block below for modern browsers.
+   ============================================================ */
+:root {
+  --radius: 0.75rem;
+  /* Light mode hex fallbacks */
+  --background: #f7f8fc;
+  --foreground: #1c1f2e;
+  --card: #ffffff;
+  --card-foreground: #1c1f2e;
+  --popover: #ffffff;
+  --popover-foreground: #1c1f2e;
+  --primary: #6640cc;
+  --primary-foreground: #f4f2fe;
+  --secondary: #f0f1f5;
+  --secondary-foreground: #2f3246;
+  --muted: #f0f1f5;
+  --muted-foreground: #73778c;
+  --accent: #f0f1f5;
+  --accent-foreground: #2f3246;
+  --destructive: #d44b23;
+  --destructive-foreground: #fef6f3;
+  --border: #e6e8ee;
+  --input: #e6e8ee;
+  --ring: #6640cc;
+  --income: #18b470;
+  --expense: #d44b23;
+  --income-muted: #d0f4e5;
+  --expense-muted: #f9ddd2;
+  --surface: #f4f5f9;
+  --surface-elevated: #ffffff;
+  --chart-1: #6640cc;
+  --chart-2: #18b470;
+  --chart-3: #d44b23;
+  --chart-4: #c9a422;
+  --chart-5: #a040c8;
+  --sidebar: #f4f5f9;
+  --sidebar-foreground: #1c1f2e;
+  --sidebar-primary: #6640cc;
+  --sidebar-primary-foreground: #f4f2fe;
+  --sidebar-accent: #f0f1f5;
+  --sidebar-accent-foreground: #2f3246;
+  --sidebar-border: #e6e8ee;
+  --sidebar-ring: #6640cc;
+}
+
+.dark {
+  /* Dark mode hex fallbacks */
+  --background: #171929;
+  --foreground: #ecedf2;
+  --card: #1e2031;
+  --card-foreground: #ecedf2;
+  --popover: #1e2031;
+  --popover-foreground: #ecedf2;
+  --primary: #7c58e8;
+  --primary-foreground: #181527;
+  --secondary: #272a3d;
+  --secondary-foreground: #e2e3ea;
+  --muted: #272a3d;
+  --muted-foreground: #8c8fa4;
+  --accent: #272a3d;
+  --accent-foreground: #e2e3ea;
+  --destructive: #e06038;
+  --destructive-foreground: #1e100a;
+  --border: #2f3148;
+  --input: #2f3148;
+  --ring: #7c58e8;
+  --income: #26cc80;
+  --expense: #e06038;
+  --income-muted: #1a3d2b;
+  --expense-muted: #3d2218;
+  --surface: #1c1e2f;
+  --surface-elevated: #232540;
+  --chart-1: #7c58e8;
+  --chart-2: #26cc80;
+  --chart-3: #e06038;
+  --chart-4: #d4a830;
+  --chart-5: #be55e0;
+  --sidebar: #1c1e2f;
+  --sidebar-foreground: #ecedf2;
+  --sidebar-primary: #7c58e8;
+  --sidebar-primary-foreground: #181527;
+  --sidebar-accent: #272a3d;
+  --sidebar-accent-foreground: #e2e3ea;
+  --sidebar-border: #2f3148;
+  --sidebar-ring: #7c58e8;
+}
+
+/* Override with oklch for browsers that support it (Safari 15.4+, iOS 15.4+) */
+@supports (color: oklch(0 0 0)) {
+  :root {
+    --background: oklch(0.985 0.002 260);
+    --foreground: oklch(0.145 0.025 260);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0.025 260);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0.025 260);
+    --primary: oklch(0.55 0.2 275);
+    --primary-foreground: oklch(0.98 0.005 275);
+    --secondary: oklch(0.955 0.01 260);
+    --secondary-foreground: oklch(0.25 0.025 260);
+    --muted: oklch(0.955 0.01 260);
+    --muted-foreground: oklch(0.5 0.02 260);
+    --accent: oklch(0.955 0.01 260);
+    --accent-foreground: oklch(0.25 0.025 260);
+    --destructive: oklch(0.58 0.22 25);
+    --destructive-foreground: oklch(0.98 0.005 25);
+    --border: oklch(0.915 0.01 260);
+    --input: oklch(0.915 0.01 260);
+    --ring: oklch(0.55 0.2 275);
+    --income: oklch(0.65 0.19 155);
+    --expense: oklch(0.62 0.2 25);
+    --income-muted: oklch(0.92 0.06 155);
+    --expense-muted: oklch(0.92 0.06 25);
+    --surface: oklch(0.975 0.003 260);
+    --surface-elevated: oklch(1 0 0);
+    --chart-1: oklch(0.55 0.2 275);
+    --chart-2: oklch(0.65 0.19 155);
+    --chart-3: oklch(0.62 0.2 25);
+    --chart-4: oklch(0.72 0.15 80);
+    --chart-5: oklch(0.6 0.18 310);
+    --sidebar: oklch(0.975 0.003 260);
+    --sidebar-foreground: oklch(0.145 0.025 260);
+    --sidebar-primary: oklch(0.55 0.2 275);
+    --sidebar-primary-foreground: oklch(0.98 0.005 275);
+    --sidebar-accent: oklch(0.955 0.01 260);
+    --sidebar-accent-foreground: oklch(0.25 0.025 260);
+    --sidebar-border: oklch(0.915 0.01 260);
+    --sidebar-ring: oklch(0.55 0.2 275);
+  }
+
+  .dark {
+    --background: oklch(0.13 0.02 260);
+    --foreground: oklch(0.94 0.01 260);
+    --card: oklch(0.17 0.02 260);
+    --card-foreground: oklch(0.94 0.01 260);
+    --popover: oklch(0.17 0.02 260);
+    --popover-foreground: oklch(0.94 0.01 260);
+    --primary: oklch(0.65 0.22 275);
+    --primary-foreground: oklch(0.13 0.02 275);
+    --secondary: oklch(0.22 0.02 260);
+    --secondary-foreground: oklch(0.9 0.01 260);
+    --muted: oklch(0.22 0.02 260);
+    --muted-foreground: oklch(0.6 0.02 260);
+    --accent: oklch(0.22 0.02 260);
+    --accent-foreground: oklch(0.9 0.01 260);
+    --destructive: oklch(0.65 0.2 25);
+    --destructive-foreground: oklch(0.13 0.02 25);
+    --border: oklch(0.25 0.02 260);
+    --input: oklch(0.25 0.02 260);
+    --ring: oklch(0.65 0.22 275);
+    --income: oklch(0.72 0.18 155);
+    --expense: oklch(0.68 0.18 25);
+    --income-muted: oklch(0.25 0.06 155);
+    --expense-muted: oklch(0.25 0.06 25);
+    --surface: oklch(0.15 0.02 260);
+    --surface-elevated: oklch(0.19 0.02 260);
+    --chart-1: oklch(0.65 0.22 275);
+    --chart-2: oklch(0.72 0.18 155);
+    --chart-3: oklch(0.68 0.18 25);
+    --chart-4: oklch(0.78 0.14 80);
+    --chart-5: oklch(0.68 0.18 310);
+    --sidebar: oklch(0.15 0.02 260);
+    --sidebar-foreground: oklch(0.94 0.01 260);
+    --sidebar-primary: oklch(0.65 0.22 275);
+    --sidebar-primary-foreground: oklch(0.13 0.02 275);
+    --sidebar-accent: oklch(0.22 0.02 260);
+    --sidebar-accent-foreground: oklch(0.9 0.01 260);
+    --sidebar-border: oklch(0.25 0.02 260);
+    --sidebar-ring: oklch(0.65 0.22 275);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    /* Remove iOS/Safari default blue tap highlight */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent iOS text size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Prevent body-level overscroll bounce on iOS */
+    overscroll-behavior-y: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ============================================================
+   iOS SAFARI: Prevent input zoom (font-size must be >= 16px).
+   This selector lives outside @layer so it has higher
+   specificity than Tailwind utility classes (text-sm etc.)
+   and targets only iOS/iPadOS Safari via the feature query.
+   ============================================================ */
+@supports (-webkit-touch-callout: none) {
+  input,
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  input[type="password"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* ============================================================
+     SAFE AREA INSET UTILITIES
+     Required for iPhone notch (13) / Dynamic Island (15).
+     The viewport meta must have viewport-fit=cover (already set).
+     ============================================================ */
+
+  /* Used by BottomNav */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Composable shortcuts */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Momentum scrolling on iOS for scrollable containers */
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
