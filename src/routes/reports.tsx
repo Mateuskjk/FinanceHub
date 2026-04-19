@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { useTransactions, useMonthlyData, useProfile } from "@/hooks/use-transactions";
+import { useTransactions, useMonthlyData, useProfile, useSavings } from "@/hooks/use-transactions";
 import { getTotals, formatCurrency, getCategoryTotals } from "@/lib/mock-data";
 import type { Transaction } from "@/lib/mock-data";
 import { exportPDF } from "@/lib/export-pdf";
@@ -204,6 +204,7 @@ function ReportsPage() {
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: monthlyData = [] }             = useMonthlyData(6);
   const { data: profile }                      = useProfile();
+  const { data: savings = [] }                 = useSavings();
   const { user }                               = useAuth();
 
   const initialBalance = profile?.initial_balance ?? 0;
@@ -219,7 +220,7 @@ function ReportsPage() {
     setExporting(true);
     try {
       const name = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuário";
-      exportPDF(transactions, name, period);
+      exportPDF(transactions, savings, name, period, initialBalance);
     } finally {
       setExporting(false);
     }
