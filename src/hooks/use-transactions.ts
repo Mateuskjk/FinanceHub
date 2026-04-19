@@ -5,13 +5,17 @@ import {
   fetchMonthlyData,
   fetchCategories,
   fetchProfile,
+  fetchSavings,
   createTransaction,
   deleteTransaction,
   createCategory,
   updateCategory,
   deleteCategory,
+  createSavingsTransaction,
+  deleteSavingsTransaction,
   type NewTransaction,
   type NewCategory,
+  type NewSavingsTransaction,
 } from "@/lib/api";
 
 // ─── Query keys ───────────────────────────────────────────────────────────────
@@ -21,6 +25,7 @@ export const queryKeys = {
   monthlyData: (months: number) => ["monthly-data", months] as const,
   categories: (type?: "income" | "expense") => ["categories", type] as const,
   profile: ["profile"] as const,
+  savings: ["savings"] as const,
 };
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -87,6 +92,40 @@ export function useDeleteTransaction() {
     onError: (err: Error) => {
       toast.error("Erro ao remover: " + err.message);
     },
+  });
+}
+
+// ─── Savings ─────────────────────────────────────────────────────────────────
+
+export function useSavings() {
+  return useQuery({
+    queryKey: queryKeys.savings,
+    queryFn: fetchSavings,
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateSavingsTransaction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (tx: NewSavingsTransaction) => createSavingsTransaction(tx),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.savings });
+      toast.success("Movimentação registrada!");
+    },
+    onError: (err: Error) => toast.error("Erro: " + err.message),
+  });
+}
+
+export function useDeleteSavingsTransaction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteSavingsTransaction(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.savings });
+      toast.success("Registro removido.");
+    },
+    onError: (err: Error) => toast.error("Erro ao remover: " + err.message),
   });
 }
 

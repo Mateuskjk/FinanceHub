@@ -1,12 +1,13 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { LayoutDashboard, ArrowLeftRight, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, PiggyBank, BarChart3, Settings } from "lucide-react";
 
 const tabs = [
-  { to: "/", icon: LayoutDashboard, label: "Início" },
-  { to: "/transactions", icon: ArrowLeftRight, label: "Transações" },
-  { to: "/reports", icon: BarChart3, label: "Relatórios" },
-  { to: "/settings", icon: Settings, label: "Ajustes" },
+  { to: "/",            icon: LayoutDashboard, label: "Início"      },
+  { to: "/transactions", icon: ArrowLeftRight,  label: "Transações" },
+  { to: "/savings",     icon: PiggyBank,        label: "Poupança"   },
+  { to: "/reports",     icon: BarChart3,        label: "Relatórios" },
+  { to: "/settings",    icon: Settings,         label: "Ajustes"    },
 ] as const;
 
 export function BottomNav() {
@@ -14,7 +15,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-card/80 backdrop-blur-xl safe-area-bottom">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-1">
+      <div className="mx-auto flex max-w-lg items-center justify-around px-1 py-1">
         {tabs.map((tab) => {
           const isActive =
             tab.to === "/" ? location.pathname === "/" : location.pathname.startsWith(tab.to);
@@ -41,7 +42,7 @@ export function BottomNav() {
                 />
               </div>
               <span
-                className={`text-[10px] font-medium transition-colors ${
+                className={`text-[9px] font-medium transition-colors leading-none ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
               >

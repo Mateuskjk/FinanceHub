@@ -286,3 +286,52 @@ export async function updateProfile(updates: Partial<Profile>): Promise<void> {
     .eq("id", user.id);
   if (error) throw error;
 }
+
+// ─── Savings ──────────────────────────────────────────────────────────────────
+
+export interface SavingsTransaction {
+  id: string;
+  user_id: string;
+  amount: number;
+  type: "deposit" | "withdrawal";
+  description: string | null;
+  date: string;
+  created_at: string;
+}
+
+export interface NewSavingsTransaction {
+  amount: number;
+  type: "deposit" | "withdrawal";
+  description?: string;
+  date: string;
+}
+
+export async function fetchSavings(): Promise<SavingsTransaction[]> {
+  const user = await requireUser();
+  const { data, error } = await supabase
+    .from("savings_transactions")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data as SavingsTransaction[];
+}
+
+export async function createSavingsTransaction(
+  tx: NewSavingsTransaction
+): Promise<void> {
+  const user = await requireUser();
+  const { error } = await supabase
+    .from("savings_transactions")
+    .insert({ ...tx, user_id: user.id });
+  if (error) throw error;
+}
+
+export async function deleteSavingsTransaction(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("savings_transactions")
+    .delete()
+    .eq("id", id);
+  if (error) throw error;
+}
